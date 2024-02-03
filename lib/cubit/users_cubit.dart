@@ -14,4 +14,9 @@ class UsersCubit extends Cubit<UsersState> {
     state.usersCubitList.add(user);
     refresh();
   }
+
+  void delUser(User user) {
+    state.usersCubitList.remove(user);
+    refresh();
+  }
 }
