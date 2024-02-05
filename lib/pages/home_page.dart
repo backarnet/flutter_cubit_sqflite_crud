@@ -31,8 +31,7 @@ class HomePage extends StatelessWidget {
         builder: (_, state) {
           return ListView(
             padding: const EdgeInsets.all(10),
-            children:
-                state.usersCubitList.map((user) => UserRowCard(user)).toList(),
+            children: state.users.map((user) => UserRowCard(user)).toList(),
           );
         },
       ),
@@ -53,7 +52,7 @@ class UserRowCard extends StatelessWidget {
         height: 60,
         child: ListTile(
           leading: const Icon(Icons.person),
-          title: Text(user.userName),
+          title: Text('${user.id} - ${user.userName}'),
           subtitle: Text(user.age.toString()),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -114,7 +113,7 @@ class DialogContent extends StatelessWidget {
     var textName = TextEditingController();
     var textAge = TextEditingController();
     if (user != null) {
-      textName.text = user!.userName;
+      textName.text = user!.userName ?? '';
       textAge.text = user!.age.toString();
     }
     return AlertDialog(
@@ -140,9 +139,14 @@ class DialogContent extends StatelessWidget {
             if (textName.text.trim().isNotEmpty &&
                 textAge.text.trim().isNotEmpty) {
               user == null
-                  ? context.read<UsersCubit>().addUser(User(
-                      textName.text, int.tryParse(textAge.text.trim()) ?? 0))
-                  : log(user!.userName);
+                  ? context.read<UsersCubit>().addUser(
+                        User(
+                            id: context.read<UsersCubit>().state.users.length +
+                                1,
+                            userName: textName.text,
+                            age: int.tryParse(textAge.text.trim()) ?? 0),
+                      )
+                  : log(user!.userName ?? '');
               Navigator.pop(context);
             }
           },
