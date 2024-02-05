@@ -3,10 +3,13 @@ class User {
   final String? userName;
   final int? age;
 
-  const User({this.id, this.userName, this.age});
+  User({this.id, required this.userName, required this.age});
 
-  factory User.fromMap(Map<String, dynamic> json) =>
-      User(id: json["id"], userName: json["userName"], age: json["age"]);
+  factory User.fromMap(Map<String, dynamic> json) => User(
+        id: json["id"],
+        userName: json["userName"],
+        age: json["age"],
+      );
 
   Map<String, dynamic> toMap() {
     return {

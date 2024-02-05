@@ -21,7 +21,7 @@ class UserRepository {
     });
   }
 
-  Future<User> getUser(int id) async {
+  Future<User?> getUser(int id) async {
     Database db = await DbHelper.initDb();
     List<Map<String, dynamic>> user = await db.rawQuery(
       '''
@@ -36,7 +36,7 @@ class UserRepository {
           userName: user[0]['userName'],
           age: user[0]['age']);
     } else {
-      return const User();
+      return null;
     }
   }
 

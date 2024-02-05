@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../cubit/users_cubit.dart';
-import '../models/user.dart';
-import 'books_page.dart';
+import '../cubit/books_cubit.dart';
+import '../models/book.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class BooksPage extends StatelessWidget {
+  const BooksPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Users'),
+        title: const Text('Books'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
@@ -24,23 +23,13 @@ class HomePage extends StatelessWidget {
             },
             icon: const Icon(Icons.add),
           ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(
-                builder: (context) {
-                  return const BooksPage();
-                },
-              ));
-            },
-            icon: const Icon(Icons.menu_book_rounded),
-          ),
         ],
       ),
-      body: BlocBuilder<UsersCubit, UsersState>(
+      body: BlocBuilder<BooksCubit, BooksState>(
         builder: (_, state) {
           return ListView(
             padding: const EdgeInsets.all(10),
-            children: state.users.map((user) => UserRowCard(user)).toList(),
+            children: state.books.map((book) => BookRowCard(book)).toList(),
           );
         },
       ),
@@ -48,10 +37,10 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class UserRowCard extends StatelessWidget {
-  const UserRowCard(this.user, {super.key});
+class BookRowCard extends StatelessWidget {
+  const BookRowCard(this.book, {super.key});
 
-  final User user;
+  final Book book;
 
   @override
   Widget build(BuildContext context) {
@@ -61,8 +50,8 @@ class UserRowCard extends StatelessWidget {
         height: 60,
         child: ListTile(
           leading: const Icon(Icons.person),
-          title: Text('${user.id} - ${user.userName}'),
-          subtitle: Text(user.age.toString()),
+          title: Text('${book.id} - ${book.title}'),
+          subtitle: Text('User: ${book.userName} - ${book.pages} pages'),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -71,7 +60,7 @@ class UserRowCard extends StatelessWidget {
                     showDialog(
                       context: context,
                       builder: (context) {
-                        return DialogContent(user: user);
+                        return DialogContent(book: book);
                       },
                     );
                   },
@@ -84,7 +73,7 @@ class UserRowCard extends StatelessWidget {
                       return AlertDialog(
                         title: const Text('Delete'),
                         content:
-                            Text('Do you want to delete "${user.userName}" ?'),
+                            Text('Do you want to delete "${book.title}" ?'),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
@@ -92,7 +81,7 @@ class UserRowCard extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () {
-                              context.read<UsersCubit>().delUser(user.id!);
+                              context.read<BooksCubit>().delBook(book.id!);
                               Navigator.pop(context);
                             },
                             child: const Text('Delete'),
@@ -113,28 +102,32 @@ class UserRowCard extends StatelessWidget {
 }
 
 class DialogContent extends StatelessWidget {
-  const DialogContent({this.user, super.key});
+  const DialogContent({this.book, super.key});
 
-  final User? user;
+  final Book? book;
 
   @override
   Widget build(BuildContext context) {
-    var textName = TextEditingController();
-    var textAge = TextEditingController();
-    if (user != null) {
-      textName.text = user!.userName ?? '';
-      textAge.text = user!.age.toString();
+    var textTitle = TextEditingController();
+    var textPages = TextEditingController();
+    var textUserId = TextEditingController();
+    if (book != null) {
+      textTitle.text = book!.title;
+      textPages.text = book!.pages.toString();
+      textUserId.text = book!.userId.toString();
     }
     return AlertDialog(
-      title: const Text('User info'),
+      title: const Text('Book info'),
       content: SizedBox(
-        height: 120,
+        height: 165,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            textField('User name', textName),
+            textField('Book title', textTitle),
             const SizedBox(height: 10),
-            textField('Age', textAge, TextInputType.number),
+            textField('Pages', textPages, TextInputType.number),
+            const SizedBox(height: 10),
+            textField('User Id', textUserId, TextInputType.number),
           ],
         ),
       ),
@@ -145,24 +138,27 @@ class DialogContent extends StatelessWidget {
         ),
         TextButton(
           onPressed: () {
-            if (textName.text.trim().isNotEmpty &&
-                textAge.text.trim().isNotEmpty) {
-              user == null
-                  ? context.read<UsersCubit>().addUser(
-                        User(
-                            userName: textName.text,
-                            age: int.tryParse(textAge.text.trim()) ?? 0),
+            if (textTitle.text.trim().isNotEmpty &&
+                textPages.text.trim().isNotEmpty &&
+                textUserId.text.trim().isNotEmpty) {
+              book == null
+                  ? context.read<BooksCubit>().addBook(
+                        Book(
+                          title: textTitle.text,
+                          pages: int.tryParse(textPages.text.trim()) ?? 0,
+                          userId: int.tryParse(textUserId.text.trim()) ?? 0,
+                        ),
                       )
-                  : context.read<UsersCubit>().editUser(
-                        User(
-                            id: user!.id,
-                            userName: textName.text,
-                            age: int.tryParse(textAge.text.trim()) ?? 0),
-                      );
+                  : context.read<BooksCubit>().editBook(Book(
+                        id: book!.id,
+                        title: textTitle.text,
+                        pages: int.tryParse(textPages.text.trim()) ?? 0,
+                        userId: int.tryParse(textUserId.text.trim()) ?? 0,
+                      ));
               Navigator.pop(context);
             }
           },
-          child: Text(user == null ? 'Add' : 'Save changes'),
+          child: Text(book == null ? 'Add' : 'Save changes'),
         ),
       ],
     );

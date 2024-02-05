@@ -2,6 +2,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 const String tableUsers = 'users';
+const String tableBooks = 'books';
 
 class DbHelper {
   static final DbHelper _instance = DbHelper.internal();
@@ -27,14 +28,29 @@ class DbHelper {
   }
 
   static Future<void> _onCreate(Database db, int version) async {
-    await db.execute(
-      '''
-      CREATE TABLE $tableUsers (
-        id INTEGER PRIMARY KEY,
-        userName TEXT,
-        age INTEGER
-      )
-      ''',
-    );
+    await db.transaction((trans) async {
+      var batch = trans.batch();
+      await trans.execute(
+        '''
+        CREATE TABLE $tableUsers (
+          id INTEGER PRIMARY KEY,
+          userName TEXT,
+          age INTEGER
+        )
+        ''',
+      );
+      await trans.execute(
+        '''
+        CREATE TABLE $tableBooks (
+          id INTEGER PRIMARY KEY,
+          title TEXT,
+          pages INTEGER,
+          userId INTEGER,
+          FOREIGN KEY (userId) REFERENCES $tableUsers(id) ON DELETE CASCADE
+        )
+        ''',
+      );
+      await batch.commit();
+    });
   }
 }
