@@ -7,12 +7,19 @@ import 'pages/home_page.dart';
 const Color _themeColor = Colors.green;
 const ThemeMode _themeBrightness = ThemeMode.light;
 
-void main() => runApp(MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => UsersCubit()),
-      ],
-      child: const MainApp(),
-    ));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final UsersCubit userCubit = UsersCubit();
+  await userCubit.refresh();
+
+  runApp(MultiBlocProvider(
+    providers: [
+      BlocProvider(create: (_) => userCubit),
+    ],
+    child: const MainApp(),
+  ));
+}
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
