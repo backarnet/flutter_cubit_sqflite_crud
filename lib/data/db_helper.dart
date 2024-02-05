@@ -23,7 +23,14 @@ class DbHelper {
     String databasesPath = await getDatabasesPath();
     String path = join(databasesPath, 'flutter_cubit_sqflite_crud.db');
 
-    var db = await openDatabase(path, version: 1, onCreate: _onCreate);
+    var db = await openDatabase(
+      path,
+      version: 1,
+      onCreate: _onCreate,
+      onConfigure: _onConfigure,
+      onUpgrade: (db, oldVersion, newVersion) {},
+      onDowngrade: (db, oldVersion, newVersion) {},
+    );
     return db;
   }
 
@@ -52,5 +59,9 @@ class DbHelper {
       );
       await batch.commit();
     });
+  }
+
+  static Future _onConfigure(Database db) async {
+    await db.execute('PRAGMA foreign_keys = ON');
   }
 }

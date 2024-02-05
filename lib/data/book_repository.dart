@@ -8,7 +8,7 @@ class BookRepository {
     Database db = await DbHelper.initDb();
     List<Map<String, dynamic>> booksMaps = await db.rawQuery(
       '''
-      SELECT *
+      SELECT books.id id, title, pages, userId, userName
       FROM $tableBooks
       JOIN $tableUsers ON userId = users.id
       ''',

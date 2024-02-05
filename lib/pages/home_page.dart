@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test_db/cubit/books_cubit.dart';
 
 import '../cubit/users_cubit.dart';
 import '../models/user.dart';
@@ -93,6 +94,7 @@ class UserRowCard extends StatelessWidget {
                           TextButton(
                             onPressed: () {
                               context.read<UsersCubit>().delUser(user.id!);
+                              context.read<BooksCubit>().refresh();
                               Navigator.pop(context);
                             },
                             child: const Text('Delete'),
@@ -159,6 +161,7 @@ class DialogContent extends StatelessWidget {
                             userName: textName.text,
                             age: int.tryParse(textAge.text.trim()) ?? 0),
                       );
+              context.read<BooksCubit>().refresh();
               Navigator.pop(context);
             }
           },
